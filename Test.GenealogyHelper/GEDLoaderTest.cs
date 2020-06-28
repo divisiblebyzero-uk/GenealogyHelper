@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Castle.Core.Logging;
 using GenealogyHelper.Model;
 using GenealogyHelper.Service;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -16,7 +16,6 @@ namespace Test.GenealogyHelper
         public void TestFileLoad()
         {
             var mockLogger = new Mock<ILogger<GEDLoader>>();
-
 
             GEDLoader loader = new GEDLoader(mockLogger.Object);
             loader.LoadGEDFile("./Resources/TestInput.ged");

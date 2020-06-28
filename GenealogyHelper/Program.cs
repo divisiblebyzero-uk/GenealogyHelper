@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
+using System.IO;
 using GenealogyHelper.Service;
 
 namespace GenealogyHelper
@@ -11,7 +12,14 @@ namespace GenealogyHelper
     {
         static void Main(string[] args)
         {
-            SetupStaticLogger();
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddCommandLine(args)
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
 
             try
             {
@@ -27,17 +35,6 @@ namespace GenealogyHelper
             }
         }
 
-        private static void SetupStaticLogger()
-        {
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
-
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
-        }
-
         private static IHostBuilder CreateHostBuilder(string[] args) =>
             new HostBuilder()
                 .ConfigureServices((hostContext, services) =>
@@ -49,7 +46,12 @@ namespace GenealogyHelper
                             // Specify the class that is the app/service that should be ran.
                             .AddHostedService<GenealogyOMatic>();
                     }
-                )
+                ).ConfigureHostConfiguration(configHost =>
+                {
+                    configHost.SetBasePath(Directory.GetCurrentDirectory());
+                    configHost.AddJsonFile("appsettings.json", optional: true);
+                    configHost.AddCommandLine(args);
+                })
                 .ConfigureLogging((hostContext, logging) =>
                     {
                         logging.AddSerilog();
