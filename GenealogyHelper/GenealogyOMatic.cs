@@ -11,19 +11,22 @@ namespace GenealogyHelper
 {
     public class GenealogyOMatic : IHostedService
     {
-        private GEDParser _gedParser;
-        private ILogger<GenealogyOMatic> _logger;
+        private readonly GEDLoader _gedLoader;
+        private readonly ReportWriter _reportWriter;
+        private readonly ILogger<GenealogyOMatic> _logger;
 
-        public GenealogyOMatic(ILogger<GenealogyOMatic> logger, GEDParser gedParser)
+        public GenealogyOMatic(ILogger<GenealogyOMatic> logger, GEDLoader gedLoader, ReportWriter reportWriter)
         {
-            _gedParser = gedParser;
+            _gedLoader = gedLoader;
+            _reportWriter = reportWriter;
             _logger = logger;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting application");
-            _gedParser.ParseGEDFile($"d:\\dev\\projects\\genealogyhelper\\test.ged");
+            _gedLoader.LoadGEDFile($"d:\\dev\\projects\\genealogyhelper\\test.ged");
+            _reportWriter.WriteReport(@"d:\dev\projects\genealogyhelper\output.csv", _gedLoader.GEDModel);
             return Task.CompletedTask;
         }
 

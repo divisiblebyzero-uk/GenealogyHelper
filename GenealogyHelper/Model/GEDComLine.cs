@@ -33,5 +33,10 @@ namespace GenealogyHelper.Model
         public string XrefId { get; set; }
         public string Tag { get; set; }
         public string LineValue { get; set; }
+
+        public override string ToString()
+        {
+            return $"{nameof(Level)}: {Level}, {nameof(XrefId)}: {XrefId}, {nameof(Tag)}: {Tag}, {nameof(LineValue)}: {LineValue}";
+        }
     }
 }

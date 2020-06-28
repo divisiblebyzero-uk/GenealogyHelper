@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Test.GenealogyHelper
 {
-    public class ParserTest
+    public class GEDComLineTest
     {
         [Theory]
         [InlineData("0 HEAD", 0, "", "HEAD", "")]

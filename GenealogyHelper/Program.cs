@@ -44,7 +44,8 @@ namespace GenealogyHelper
                     {
                         services
                             // Setup Dependency Injection container.
-                            .AddScoped<GEDParser>()
+                            .AddScoped<GEDLoader>()
+                            .AddScoped<ReportWriter>()
                             // Specify the class that is the app/service that should be ran.
                             .AddHostedService<GenealogyOMatic>();
                     }
