@@ -27,7 +27,7 @@ namespace GenealogyHelper
             _gedLoader = gedLoader;
             _reportWriter = reportWriter;
 
-             InputFilename = configuration["GenealogyHelper:InputFilename"];
+            InputFilename = configuration["GenealogyHelper:InputFilename"];
             OutputFilename = configuration["GenealogyHelper:OutputFilename"];
         }
 
@@ -37,8 +37,6 @@ namespace GenealogyHelper
             
             _gedLoader.LoadGEDFile(InputFilename);
             _reportWriter.WriteReport(OutputFilename, _gedLoader.GEDModel);
-            //_gedLoader.LoadGEDFile($"d:\\dev\\projects\\genealogyhelper\\test.ged");
-            //_reportWriter.WriteReport(@"d:\dev\projects\genealogyhelper\output.csv", _gedLoader.GEDModel);
             return Task.CompletedTask;
         }
 

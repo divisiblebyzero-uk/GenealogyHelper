@@ -185,7 +185,15 @@ namespace GenealogyHelper.Service
 
         public void LoadGEDFile(string filename)
         {
-            LoadGEDData(File.ReadLines(filename));
+            if (File.Exists(filename))
+            {
+                LoadGEDData(File.ReadLines(filename));
+            }
+            else
+            {
+                _logger.LogError($"Error - input {filename} not found");
+            }
+            
         }
 
         public void LoadGEDData(IEnumerable<string> data)
