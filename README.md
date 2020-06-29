@@ -7,4 +7,4 @@ A command line utility for assisting with Genealogy related tasks.
 ## GED2CSV
 
 Usage:
-GenealogyHelper /GenealogyHelper:InputFilename input.ged /GenealogyHelper:OutputFilename output.csv
+GenealogyHelper /GenealogyHelper:InputFilename input.ged /GenealogyHelper:IndividualsOutputFilename individuals.csv /GenealogyHelper:EventsOutputFilename events.csv
