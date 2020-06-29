@@ -165,7 +165,7 @@ namespace GenealogyHelper.Service
             return f;
         }
 
-        private void UpdateReferences()
+        private void UpdateFamilyReferences()
         {
             foreach (var family in _gedModel.Families.Values)
             {
@@ -179,6 +179,46 @@ namespace GenealogyHelper.Service
                     {
                         _gedModel.Individuals[family.WifeXrefId].PlaceOfWedding = family.PlaceOfWedding;
                     }
+                }
+            }
+        }
+
+        private void CreateEventList()
+        {
+            foreach (var individual in _gedModel.Individuals.Values)
+            {
+                if (!string.IsNullOrEmpty(individual.PlaceOfBirth))
+                {
+                    _gedModel.Events.Add(new Event
+                    {
+                        PlaceName = individual.PlaceOfBirth,
+                        EventType = "Birth",
+                        Subject1 = individual.XrefId
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(individual.PlaceOfDeath))
+                {
+                    _gedModel.Events.Add(new Event
+                    {
+                        PlaceName = individual.PlaceOfDeath,
+                        EventType = "Death",
+                        Subject1 = individual.XrefId
+                    });
+                }
+            }
+
+            foreach (var family in _gedModel.Families.Values)
+            {
+                if (!string.IsNullOrEmpty(family.PlaceOfWedding))
+                {
+                    _gedModel.Events.Add(new Event
+                    {
+                        PlaceName = family.PlaceOfWedding,
+                        EventType = "Wedding",
+                        Subject1 = family.HusbandXrefId,
+                        Subject2 = family.WifeXrefId
+                    });
                 }
             }
         }
@@ -203,7 +243,9 @@ namespace GenealogyHelper.Service
 
             ParseLevel0(queue);
 
-            UpdateReferences();
+            UpdateFamilyReferences();
+
+            CreateEventList();
 
             _logger.LogInformation($"Completed: loaded {_gedModel.Individuals.Count} individuals.");
         }

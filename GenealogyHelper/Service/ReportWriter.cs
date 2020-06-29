@@ -18,9 +18,9 @@ namespace GenealogyHelper.Service
             _logger = logger;
         }
 
-        public void WriteReport(string filename, GEDModel gedModel)
+        public void WriteReports(GEDModel gedModel, string individualsFilename, string eventsFilename)
         {
-            using (var writer = new StreamWriter(filename))
+            using (var writer = new StreamWriter(individualsFilename))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 csv.WriteHeader<Individual>();
@@ -31,6 +31,19 @@ namespace GenealogyHelper.Service
                     csv.NextRecord();
                 }
             }
+
+            using (var writer = new StreamWriter(eventsFilename))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteHeader<Event>();
+                csv.NextRecord();
+                foreach (Event e in gedModel.Events)
+                {
+                    csv.WriteRecord<Event>(e);
+                    csv.NextRecord();
+                }
+            }
+
         }
     }
 }

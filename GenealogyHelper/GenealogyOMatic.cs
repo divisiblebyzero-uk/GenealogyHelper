@@ -18,7 +18,8 @@ namespace GenealogyHelper
         private readonly ILogger<GenealogyOMatic> _logger;
         private readonly IConfiguration _configuration;
         private readonly string InputFilename;
-        private readonly string OutputFilename;
+        private readonly string IndividualsOutputFilename;
+        private readonly string EventsOutputFilename;
 
         public GenealogyOMatic(ILogger<GenealogyOMatic> logger, IConfiguration configuration, GEDLoader gedLoader, ReportWriter reportWriter)
         {
@@ -28,7 +29,8 @@ namespace GenealogyHelper
             _reportWriter = reportWriter;
 
             InputFilename = configuration["GenealogyHelper:InputFilename"];
-            OutputFilename = configuration["GenealogyHelper:OutputFilename"];
+            IndividualsOutputFilename = configuration["GenealogyHelper:IndividualsOutputFilename"];
+            EventsOutputFilename = configuration["GenealogyHelper:EventsOutputFilename"];
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -36,7 +38,7 @@ namespace GenealogyHelper
             _logger.LogInformation("Starting application");
             
             _gedLoader.LoadGEDFile(InputFilename);
-            _reportWriter.WriteReport(OutputFilename, _gedLoader.GEDModel);
+            _reportWriter.WriteReports(_gedLoader.GEDModel, IndividualsOutputFilename, EventsOutputFilename);
             return Task.CompletedTask;
         }
 

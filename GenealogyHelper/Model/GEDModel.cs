@@ -10,9 +10,10 @@ namespace GenealogyHelper.Model
         {
             Individuals = new Dictionary<string, Individual>();
             Families = new Dictionary<string, Family>();
-            Console.WriteLine("Hello");
+            Events = new List<Event>();
         }
         public Dictionary<string, Individual> Individuals { get; set; }
         public Dictionary<string, Family> Families { get; set; }
+        public List<Event> Events { get; set; }
     }
 }
