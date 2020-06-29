@@ -13,5 +13,6 @@ namespace GenealogyHelper.Model
         public string PlaceOfBirth { get; set; }
         public string PlaceOfDeath { get; set; }
         public string PlaceOfWedding { get; set; }
+        public bool Principal { get; set; }
     }
 }

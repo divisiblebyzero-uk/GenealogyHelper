@@ -156,6 +156,13 @@ namespace GenealogyHelper.Service
                         }
 
                         break;
+                    case "CHIL":
+                        if (f.ChildrenXrefIds == null)
+                        {
+                            f.ChildrenXrefIds = new List<string>();
+                        }
+                        f.ChildrenXrefIds.Add(subinformation.LineValue);
+                        break;
                     default:
                         _logger.LogDebug($"Unknown Family information type: {subinformation.Tag}");
                         break;
@@ -183,6 +190,22 @@ namespace GenealogyHelper.Service
             }
         }
 
+        private void UpdatePrincipals(string xrefId)
+        {
+            if (xrefId == null)
+            {
+                return;
+            }
+            Individual i = _gedModel.Individuals[xrefId];
+            i.Principal = true;
+            Family f = _gedModel.Families.Values.FirstOrDefault(f => (f.ChildrenXrefIds != null && f.ChildrenXrefIds.Contains(xrefId)));
+            if (f != null)
+            {
+                UpdatePrincipals(f.HusbandXrefId);
+                UpdatePrincipals(f.WifeXrefId);
+            }
+        }
+
         private void CreateEventList()
         {
             foreach (var individual in _gedModel.Individuals.Values)
@@ -193,7 +216,8 @@ namespace GenealogyHelper.Service
                     {
                         PlaceName = individual.PlaceOfBirth,
                         EventType = "Birth",
-                        Subject1 = individual.XrefId
+                        Subject1 = individual.Name,
+                        Principal = individual.Principal
                     });
                 }
 
@@ -203,7 +227,8 @@ namespace GenealogyHelper.Service
                     {
                         PlaceName = individual.PlaceOfDeath,
                         EventType = "Death",
-                        Subject1 = individual.XrefId
+                        Subject1 = individual.Name,
+                        Principal = individual.Principal
                     });
                 }
             }
@@ -217,17 +242,18 @@ namespace GenealogyHelper.Service
                         PlaceName = family.PlaceOfWedding,
                         EventType = "Wedding",
                         Subject1 = family.HusbandXrefId,
-                        Subject2 = family.WifeXrefId
+                        Subject2 = family.WifeXrefId,
+                        Principal = _gedModel.Individuals[family.HusbandXrefId].Principal || _gedModel.Individuals[family.WifeXrefId].Principal
                     });
                 }
             }
         }
 
-        public void LoadGEDFile(string filename)
+        public void LoadGEDFile(string filename, string keyIndividual)
         {
             if (File.Exists(filename))
             {
-                LoadGEDData(File.ReadLines(filename));
+                LoadGEDData(File.ReadLines(filename), keyIndividual);
             }
             else
             {
@@ -236,7 +262,7 @@ namespace GenealogyHelper.Service
             
         }
 
-        public void LoadGEDData(IEnumerable<string> data)
+        public void LoadGEDData(IEnumerable<string> data, string keyIndividual)
         {
             var arrayOfGedComLines = data.Select(s => new GEDComLine(s)).ToArray();
             var queue = new Queue<GEDComLine>(arrayOfGedComLines);
@@ -244,6 +270,8 @@ namespace GenealogyHelper.Service
             ParseLevel0(queue);
 
             UpdateFamilyReferences();
+
+            UpdatePrincipals(keyIndividual);
 
             CreateEventList();
 

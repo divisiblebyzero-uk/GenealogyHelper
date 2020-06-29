@@ -10,5 +10,6 @@ namespace GenealogyHelper.Model
         public string HusbandXrefId { get; set; }
         public string WifeXrefId { get; set; }
         public string PlaceOfWedding { get; set; }
+        public List<string> ChildrenXrefIds { get; set; }
     }
 }

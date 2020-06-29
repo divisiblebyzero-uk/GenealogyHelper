@@ -11,5 +11,6 @@ namespace GenealogyHelper.Model
         public string Subject1 { get; set; }
         public string Subject2 { get; set; }
         public string Notes { get; set; }
+        public bool Principal { get; set; }
     }
 }

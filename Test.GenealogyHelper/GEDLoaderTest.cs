@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using GenealogyHelper.Model;
 using GenealogyHelper.Service;
@@ -7,47 +8,72 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using static Xunit.Assert;
 
 namespace Test.GenealogyHelper
 {
     public class GEDLoaderTest
     {
-        [Fact]
-        public void TestFileLoad()
+
+        private GEDModel GetModelFromTestInput()
         {
             var mockLogger = new Mock<ILogger<GEDLoader>>();
 
             GEDLoader loader = new GEDLoader(mockLogger.Object);
-            loader.LoadGEDFile("./Resources/TestInput.ged");
-            Assert.Equal(3, loader.GEDModel.Individuals.Count);
-            Assert.True(loader.GEDModel.Individuals.ContainsKey("@I0@"));
-            Assert.False(loader.GEDModel.Individuals.ContainsKey("MadeUpKey"));
+            loader.LoadGEDFile("./Resources/TestInput.ged", "@I0@");
+            Equal(5, loader.GEDModel.Individuals.Count);
+            True(loader.GEDModel.Individuals.ContainsKey("@I0@"));
+            False(loader.GEDModel.Individuals.ContainsKey("MadeUpKey"));
 
-            Individual joe = loader.GEDModel.Individuals["@I0@"];
-            Assert.Equal("Joseph Kingston /Bloggs/", joe.Name);
-            Assert.Equal("M", joe.Sex);
-            Assert.Equal("3DE1240DC286491A8CA28975AC59D0AEA994", joe.Uid);
-            Assert.Equal("Kingston, Jamaica", joe.PlaceOfBirth);
-            Assert.Null(joe.PlaceOfDeath);
+            return loader.GEDModel;
+        }
 
-            Individual jane = loader.GEDModel.Individuals["@I1@"];
-            Assert.Equal("Jane Patience /Smith/", jane.Name);
-            Assert.Equal("F", jane.Sex);
-            Assert.Equal("D5D379E7F39348FEBFC22E8D865AF2CEB06C", jane.Uid);
-            Assert.Equal("Kingston upon Hull, England", jane.PlaceOfBirth);
-            Assert.Null(jane.PlaceOfDeath);
+        [Fact]
+        public void TestFileLoad()
+        {
+            var model = GetModelFromTestInput();
 
-            Individual manchester = loader.GEDModel.Individuals["@I5@"];
-            Assert.Equal("Manchester /Black/", manchester.Name);
-            Assert.Equal("M", manchester.Sex);
-            Assert.Equal("1C720EB242B34CBB943672FE56ABACF92AF6", manchester.Uid);
-            Assert.Equal("Manchester, UK", manchester.PlaceOfBirth);
-            Assert.Equal("Manchester, UK", manchester.PlaceOfDeath);
+            Individual joe = model.Individuals["@I0@"];
+            Equal("Joseph Kingston /Bloggs/", joe.Name);
+            Equal("M", joe.Sex);
+            Equal("3DE1240DC286491A8CA28975AC59D0AEA994", joe.Uid);
+            Equal("Kingston, Jamaica", joe.PlaceOfBirth);
+            Null(joe.PlaceOfDeath);
 
-            Family family = loader.GEDModel.Families["@F370@"];
-            Assert.Equal("@I0@", family.HusbandXrefId);
-            Assert.Equal("@I1@", family.WifeXrefId);
-            Assert.Equal("Gretna Green, UK", family.PlaceOfWedding);
+            Individual jane = model.Individuals["@I1@"];
+            Equal("Jane Patience /Smith/", jane.Name);
+            Equal("F", jane.Sex);
+            Equal("D5D379E7F39348FEBFC22E8D865AF2CEB06C", jane.Uid);
+            Equal("Kingston upon Hull, England", jane.PlaceOfBirth);
+            Null(jane.PlaceOfDeath);
+
+            Individual manchester = model.Individuals["@I5@"];
+            Equal("Manchester /Black/", manchester.Name);
+            Equal("M", manchester.Sex);
+            Equal("1C720EB242B34CBB943672FE56ABACF92AF6", manchester.Uid);
+            Equal("Manchester, UK", manchester.PlaceOfBirth);
+            Equal("Manchester, UK", manchester.PlaceOfDeath);
+            False(manchester.Principal);
+
+            Family family = model.Families["@F370@"];
+            Equal("@I0@", family.HusbandXrefId);
+            Equal("@I1@", family.WifeXrefId);
+            Equal("Gretna Green, UK", family.PlaceOfWedding);
+            Contains(family.ChildrenXrefIds, x => x == "@I5@");
+
+            Individual gerald = model.Individuals["@I2@"];
+            Individual bernadette = model.Individuals["@I4@"];
+            True(gerald.Principal);
+            True(bernadette.Principal);
+        }
+
+        [Fact]
+        public void TestEventList()
+        {
+            var events = GetModelFromTestInput().Events;
+            var e = events.First(e => e.PlaceName == "Gretna Green, UK");
+            Equal("Wedding", e.EventType);
+
         }
     }
 }
